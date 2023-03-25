@@ -6,6 +6,7 @@ import firebase from 'firebase/compat/app'
 import 'firebase/compat/firestore'
 import moment from 'moment';
 import 'moment/locale/uk'  // Переклад часу українською
+import { auth } from '../API/firebaseConfig';
 moment.locale('uk');
 const WIDTH = Dimensions.get('window').width
 const HEIGHT = Dimensions.get('window').height
@@ -45,10 +46,22 @@ export const SearchPage = ({navigation, route}) => {
         'Чернігівська область'
     ]
 
+    const [isVolunteer, setIsVolunteer] = useState('')
+    
+    useEffect(() => {
+    firebase.database().ref(`users/${auth.currentUser.uid}`).once('value').then(snapshot => {
+      setIsVolunteer(snapshot.val().isVolunteer)
+    });;
+  }, []);
+
     const [posts, setPosts] = useState([]);
+
+
 
     useEffect(() => {
         const post = [];
+        
+    if (isVolunteer) {
             db.collection('posts').orderBy('date', 'desc').where('city', '==', city).get()
             .then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
@@ -59,6 +72,19 @@ export const SearchPage = ({navigation, route}) => {
             })
         setPosts(post);
         });
+    } else {
+        db.collection('posts').orderBy('date', 'desc').where('city', '==', city, "and", 'authorId', '==', auth.currentUser.uid).get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                post.push({
+                  ...doc.data(),
+                  key: doc.id,
+                });
+            })
+        setPosts(post);
+        });
+      }
+
     }, [visible]);
 
     // npm install react-native-gesture-handler@2.1.0 react-native-maps@0.29.4 react-native-safe-area-context@3.3.2

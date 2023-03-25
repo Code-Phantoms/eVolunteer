@@ -2,19 +2,19 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { TouchableOpacity, Pressable, Dimensions, Image, Modal } from 'react-native';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import { useState } from 'react';
 const WIDTH = Dimensions.get('window').width
 const HEIGHT = Dimensions.get('window').height
 
-const Track = ({navigation, route}) => {
+const Track = ({route, navigation}) => {
 
     const {latitude, longitude, full, image, city} = route.params
     const [visible, setVisible] = useState(false)
     const LATITUDE_DELTA = 0.0922
     const LONGITUDE_DELTA = LATITUDE_DELTA * (WIDTH / HEIGHT)
 
-    const response = [
+    const marker = 
         {
             id: '1',
             coordinates: {
@@ -25,12 +25,12 @@ const Track = ({navigation, route}) => {
             },
             title: 'Місце',
             description: full,
-            // icon: require('../assets/markers/car-right.png')
+            // icon: require('../path')
         }
-    ]
+    
 
     return (
-    <>
+      <>
       <MapView
       provider={PROVIDER_GOOGLE}
       showsUserLocation={true}
@@ -46,17 +46,15 @@ const Track = ({navigation, route}) => {
       }}
       onPress={(event) => { setVisible(false) }}
       >
-        {response.map(marker => (
-            <MapView.Marker
-                key={marker.id}
-                identifier={marker.id}
-                coordinate={marker.coordinates}
-                onPress={(event) => {
-                    setVisible(true)
-                }}
-            >
-            </MapView.Marker>
-        ))}
+        <Marker
+            key={marker.id}
+            identifier={marker.id}
+            coordinate={marker.coordinates}
+            onPress={(event) => {
+                setVisible(true)
+            }}>
+              
+        </Marker>
       </MapView>
       <Modal
         animationType={'fade'}

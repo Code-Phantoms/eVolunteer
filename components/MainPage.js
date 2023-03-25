@@ -4,6 +4,7 @@ import { StyleSheet, Text, View, TouchableOpacity, FlatList, Dimensions, Image, 
 import { AntDesign } from '@expo/vector-icons';
 import firebase from 'firebase/compat/app'
 import 'firebase/compat/firestore'
+import {auth} from "../API/firebaseConfig"
 import moment from 'moment';
 import 'moment/locale/uk'  // Переклад часу українською
 moment.locale('uk');
@@ -47,7 +48,16 @@ export const MainPage = ({navigation}) => {
     'Чернівецька область',
     'Чернігівська область']
   
+    const [isVolunteer, setIsVolunteer] = useState('')
+    
+    useEffect(() => {
+    firebase.database().ref(`users/${auth.currentUser.uid}`).once('value').then(snapshot => {
+      setIsVolunteer(snapshot.val().isVolunteer)
+    });;
+  }, []);
+
   useEffect(() => {
+    if (isVolunteer) {
     firebase.firestore().collection('posts').orderBy('date', 'desc').onSnapshot(querySnapshot => {
         const posts = [];
   
@@ -59,7 +69,22 @@ export const MainPage = ({navigation}) => {
         });
   
         setPosts(posts);
-      });
+      }); 
+    } else {
+      firebase.firestore().collection('posts').orderBy('date', 'desc').where('authorId', '==', auth.currentUser.uid).get()
+      .then((querySnapshot) => {
+        const posts = [];
+  
+        querySnapshot.docs.forEach(documentSnapshot => {
+          posts.push({
+            ...documentSnapshot.data(),
+            key: documentSnapshot.id,
+          });
+        });
+  
+        setPosts(posts);
+      }); 
+    }
   }, []);
 
   return (

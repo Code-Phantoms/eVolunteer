@@ -8,11 +8,10 @@ import 'firebase/compat/database'
 import 'firebase/compat/storage'
 import { ScrollView } from 'react-native-gesture-handler';
 import * as Location from 'expo-location';
+import { auth } from '../API/firebaseConfig';
 
 const HEIGHT = Dimensions.get('window').height
 const WIDTH = Dimensions.get('window').width
-
-
 
 export const CreatePage = ({navigation}) => {
 
@@ -87,20 +86,26 @@ export const CreatePage = ({navigation}) => {
       console.log(location)
         setUploading(true)
         console.log(location)
-        uploadImage().then((url) => {
+        // console.log(getCity())
+        uploadImage().then(async (url) => {
+        let cityByLocation = await getCity()
         const db = firebase.firestore();
         db.collection("posts")
             .doc(key)
             .set({
               full: full,
-              city: Town,
+              city: Town == 'Автовизначення' ? cityByLocation : Town,
               image: url,
               latitude: location['coords']['latitude'],
               longitude: location['coords']['longitude'],
               date: firebase.firestore.Timestamp.now(),
+              authorId: auth.currentUser.uid
         })
         setUploading(false)
-        navigation.goBack()
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'MainPage' }],
+        });
         })
     }
 
@@ -138,12 +143,7 @@ export const CreatePage = ({navigation}) => {
           Alert.alert('Необхідно обрати область');
         } else if (!image) {
           Alert.alert('Необхідно завантажити зображення');
-        } else if(Town == 'Автовизначення') {
-          getCity().then((region) => {
-              setTown(region)
-          })
-        } 
-        else{
+        } else {
           UploadData()
       }
     }
@@ -177,8 +177,7 @@ export const CreatePage = ({navigation}) => {
                    </View>
                 </View>
            </TouchableOpacity>
-           <Text style={styles.hint}>При виборі варіанта Автовизначення треба натиснути кнопку "Готово" двічі</Text>
-        <View style={styles.searchbtn}>
+           <View style={styles.searchbtn}>
             <TextInput multiline 
                 value={full}
                 placeholder='Додаткова інформація' 
