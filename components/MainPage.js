@@ -53,7 +53,7 @@ export const MainPage = ({navigation}) => {
     useEffect(() => {
     firebase.database().ref(`users/${auth.currentUser.uid}`).once('value').then(snapshot => {
       setIsVolunteer(snapshot.val().isVolunteer)
-    });;
+    });
   }, []);
 
   useEffect(() => {
@@ -102,6 +102,7 @@ export const MainPage = ({navigation}) => {
           renderItem={({item}) => (
            <TouchableOpacity style={styles.recblock} onPress={() => navigation.navigate('Full',
            {
+            authorId: item.authorId,
             image: item.image.toString(),
             city: item.city,
             full: item.full,

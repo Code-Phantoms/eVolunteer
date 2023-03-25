@@ -2,12 +2,22 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { TouchableOpacity, FlatList, Dimensions, Image } from 'react-native';
+import * as Linking from 'expo-linking';
+import { useEffect, useState } from 'react';
 
 const WIDTH = Dimensions.get('window').width
 const HEIGHT = Dimensions.get('window').height
 
 export const Full = ({navigation, route}) => {
-    const {image, full, city, date, latitude, longitude} = route.params
+    const {image, full, city, date, latitude, longitude, authorId} = route.params
+
+    const [email, setEmail] = useState('')
+    
+    useEffect(() => {
+      firebase.database().ref(`users/${auth.currentUser.uid}`).once('value').then(snapshot => {
+        setEmail(snapshot.val().email)
+      })  
+    }, []);
 
     return (
       <View>
@@ -26,6 +36,9 @@ export const Full = ({navigation, route}) => {
           </View>
           <Text style={styles.info}>Додаткова інформація</Text>
           {full ? <Text style={styles.infotext}>{full}</Text> : <Text style={styles.noinfo}>Немає</Text>}
+          <TouchableOpacity onPress={() => Linking.openURL(`mailto:${email}`).catch(error => {console.log(error);})}>
+              <Text style={styles.build}>Показати на карті</Text>
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('Track', {
             latitude: latitude,
             longitude: longitude,

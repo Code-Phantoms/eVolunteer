@@ -11,9 +11,8 @@ const HEIGHT = Dimensions.get('window').height
 
 const Loading = ({navigation}) => {
 
-    const auth = getAuth();
     const checkIfLoggedIn = () => {
-        onAuthStateChanged(auth, (user)  => {
+      firebase.auth().onAuthStateChanged((user)  => {
             if(user){
                 navigation.reset({
                     index: 0,

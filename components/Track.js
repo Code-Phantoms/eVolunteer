@@ -24,8 +24,7 @@ const Track = ({route, navigation}) => {
                 longitudeDelta: LONGITUDE_DELTA
             },
             title: 'Місце',
-            description: full,
-            // icon: require('../path')
+            description: full
         }
     
 
@@ -53,7 +52,7 @@ const Track = ({route, navigation}) => {
             onPress={(event) => {
                 setVisible(true)
             }}>
-              
+              <Image source={require('../assets/house.png')} style={{width: 30, height: 30}}/>
         </Marker>
       </MapView>
       <Modal
